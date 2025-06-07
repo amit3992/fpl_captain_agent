@@ -1,0 +1,43 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+.env/
+.env.*  # for Railway env files if used
+
+# Python and Flask logs
+*.log
+
+# Flask instance folder
+instance/
+
+# Cache files
+*.sqlite3
+*.db
+*.cache
+*.egg-info/
+pip-log.txt
+
+# OS / Editor files
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Pytest cache
+.pytest_cache/
+
+# Output files
+*.out
+*.bak
+
+# Ignore secrets file if you create one
+secrets.json
+
+# Railway build artifacts (optional)
+railway/
