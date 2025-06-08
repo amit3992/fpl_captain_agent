@@ -151,15 +151,11 @@ Cookie: your_fpl_cookie
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+Please read our [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
 ## License
 
-[Add your license information here]
+This project is licensed under a custom license that requires explicit permission before use. See the [LICENSE](LICENSE) file for details. To request permission to use this software, please contact the copyright holder through the project's issue tracker.
 
 ## Acknowledgments
 
