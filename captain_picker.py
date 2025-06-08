@@ -91,6 +91,7 @@ Pick the best captain and return only the player name and a one-line reason.
             content = response.json()["message"]["content"]
         
         return {
+            "model": model,
             "recommendation": content.strip(),
             "player_scores": top_players
         }
