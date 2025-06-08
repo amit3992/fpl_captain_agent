@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 import captain_picker
+from fpl import validate_gameweek
 from fpl import FPLClient
 import logging
 
@@ -35,15 +36,35 @@ def recommend():
         return jsonify({"error": "Missing authentication cookie in header."}), 400
     
     gameweek = data.get('gameweek', 12)
-    logger.info(f"Processing recommendation for gameweek {gameweek}")
+    use_llm = data.get('useLLM', False)
+    logger.info(f"Processing recommendation for gameweek {gameweek}, useLLM: {use_llm}")
+
+    # Validate gameweek
+    is_valid, error_message = validate_gameweek(gameweek)
+    if not is_valid:
+        logger.warning(f"Invalid gameweek: {error_message}")
+        return jsonify({"error": error_message}), 400
 
     try:
         client = FPLClient()
         client.set_auth_cookie(cookie)
-        team = client.get_team_for_gameweek(gameweek)
-        top_picks = captain_picker.recommend_captain_llm(team, gameweek)
-        logger.info(f"Successfully generated {len(top_picks)} captain recommendations")
-        return jsonify(top_picks)
+        team = client.get_team_for_gameweek(gameweek - 1) # -1 because gameweek becasue we are predicting the next gameweek
+        logger.info(f"Team: {team}")
+        top3_picks = captain_picker.recommend_captains_from_team(team)
+        logger.info(f"Top 3 picks: {top3_picks}")
+        
+        if use_llm:
+            top_captain_pick = captain_picker.recommend_captain_llm(top3_picks, gameweek)
+            logger.info(f"Successfully generated LLM captain recommendation")
+        else:
+            # If not using LLM, just return the top 3 picks with their scores
+            top_captain_pick = {
+                "recommendation": f"Top pick: {top3_picks[0]['name']} (Score: {top3_picks[0]['score']})",
+                "player_scores": top3_picks
+            }
+            logger.info(f"Successfully generated score-based captain recommendation")
+            
+        return jsonify(top_captain_pick)
     except Exception as e:
         logger.error(f"Error generating recommendations: {str(e)}")
         return jsonify({"error": str(e)}), 500
@@ -85,6 +106,12 @@ def get_team():
     if not cookie:
         logger.warning("Team data request failed: Missing cookie")
         return jsonify({"error": "Missing authentication cookie in header."}), 400
+
+    # Validate gameweek
+    is_valid, error_message = validate_gameweek(gameweek)
+    if not is_valid:
+        logger.warning(f"Invalid gameweek: {error_message}")
+        return jsonify({"error": error_message}), 400
 
     try:
         client = FPLClient()

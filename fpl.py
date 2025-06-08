@@ -7,6 +7,14 @@ ME_URL = "https://fantasy.premierleague.com/api/me/"
 TEAM_URL_TEMPLATE = "https://fantasy.premierleague.com/api/entry/{entry_id}/event/{gw}/picks/"
 BOOTSTRAP_URL = "https://fantasy.premierleague.com/api/bootstrap-static/"
 
+
+def validate_gameweek(gameweek):
+    if not isinstance(gameweek, int):
+        return False, "Gameweek must be an integer"
+    if gameweek < 2 or gameweek > 38:
+        return False, "Gameweek must be between 1 and 38"
+    return True, None
+
 class FPLClient:
     def __init__(self):
         logger.info("Initializing FPL client")

@@ -19,7 +19,7 @@ def score_player(player):
     modifier = 0.8 if minutes < 800 else 1.0
     return round((form * 0.5 + ppg * 0.5) * modifier, 2)
 
-def recommend_captains(team):
+def recommend_captains_from_team(team):
     data = fetch_player_data()
     player_lookup = {p['id']: p for p in data['elements']}
     player_ids = [p['id'] for p in team]
@@ -54,7 +54,7 @@ Each player includes:
 - minutes
 - score (precomputed)
     
-Pick the best captain and explain briefly why.
+Pick the best captain and return only the player name and a one-line reason.
 """
 
     try:
@@ -76,10 +76,12 @@ Pick the best captain and explain briefly why.
         else:
             model = os.getenv("OLLAMA_MODEL", "mistral")
             logger.info(f"Starting chat with Ollama model: {model}")
+            logger.info(f"Prompt: {prompt}")
             response = requests.post(
                 "http://localhost:11434/api/chat",
                 json={
                     "model": model,
+                    "stream": False,
                     "messages": [
                         {"role": "system", "content": "You are an expert Fantasy Premier League assistant."},
                         {"role": "user", "content": prompt}
@@ -87,8 +89,11 @@ Pick the best captain and explain briefly why.
                 }
             )
             content = response.json()["message"]["content"]
-
-        return {"llm_recommendation": content.strip()}
+        
+        return {
+            "recommendation": content.strip(),
+            "player_scores": top_players
+        }
 
     except Exception as e:
         return {"error": str(e)}
