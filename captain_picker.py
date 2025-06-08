@@ -63,16 +63,13 @@ Pick the best captain and return only the player name and a one-line reason.
             openai.api_key = os.getenv("OPENAI_API_KEY")
             model = "gpt-4o-mini"
             logger.info(f"Starting chat with OpenAI model: {model}")
-            response = openai.ChatCompletion.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {"role": "system", "content": "You are an expert Fantasy Premier League assistant."},
-                    {"role": "user", "content": prompt}
-                ],
-                max_tokens=300,
-                temperature=0.7
+            response = openai.responses.create(
+                model=model,
+                stream=False,
+                instructions="You are an expert Fantasy Premier League assistant. You are given a list of players and their stats. You need to pick the best captain and return only the player name and a one-line reason.",
+                input=prompt
             )
-            content = response['choices'][0]['message']['content']
+            content = response.output_text
         else:
             model = os.getenv("OLLAMA_MODEL", "mistral")
             logger.info(f"Starting chat with Ollama model: {model}")
